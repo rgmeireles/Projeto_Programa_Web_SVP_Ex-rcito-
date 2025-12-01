@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROCFP-SVP * Programa Web para registro e controle de fechamento de Processo e Envio para o SVP Digital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <center>
+        <h1>PROCFP-SVP</h1>
+        <h2>Programa Web para registro e controle de fechamento de Processo e Envio para o SVP Digital</h2>
+        <h4>Autor: 3º Sgt Neves</h4>
+        <p>
+            <img src="Imagem/foto exército.jpeg" alt="tropa">
+        </p>
+            <a
+                href="https://svpdigital.eb.mil.br/siga/public/app/login?cont=https%3A%2F%2Fsvpdigital.eb.mil.br%2Fsiga%2Fapp%2Fprincipal">
+                Clique aqui para navegar para a SVP Digital
+            </a>
+            <br>
+            <br>
+            </center>
+            <style>
+             .container {
+        max-width: 600px;
+        background: white;
+        margin: auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        width: 100%;
+        background: #007bff;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+    }
+</style>
+
+<div class="container">
+
+    <label>Nome:</label>
+    <input type="text" id="nome">
+
+    <label>Ano de Óbito:</label>
+    <input type="number" id="ano">
+
+    <label>Data de Fechamento do Processo:</label>
+    <input type="date" id="dataFechamento">
+
+    <button onclick="salvar()">Salvar Registro</button>
+
+    <table id="tabela">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Ano de Óbito</th>
+                <th>Data do Fechamento</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+</div>
+
+<script>
+    let indiceEdicao = null; // Guarda qual índice está sendo editado
+
+    document.addEventListener("DOMContentLoaded", carregar);
+
+    function salvar() {
+        const nome = document.getElementById("nome").value;
+        const ano = document.getElementById("ano").value;
+        const dataFechamento = document.getElementById("dataFechamento").value;
+
+        if (!nome || !ano || !dataFechamento) {
+            alert("Preencha todos os campos!");
+            return;
+        }
+
+        let lista = JSON.parse(localStorage.getItem("registros")) || [];
+
+        // Se NÃO está editando → adiciona novo
+        if (indiceEdicao === null) {
+            lista.push({ nome, ano, dataFechamento });
+        } else {
+            // Se está editando → atualiza registro existente
+            lista[indiceEdicao] = { nome, ano, dataFechamento };
+            indiceEdicao = null;
+            document.querySelector("button").innerText = "Salvar Registro";
+        }
+
+        localStorage.setItem("registros", JSON.stringify(lista));
+
+        // Limpa campos
+        document.getElementById("nome").value = "";
+        document.getElementById("ano").value = "";
+        document.getElementById("dataFechamento").value = "";
+
+        carregar();
+    }
+
+    function carregar() {
+        let lista = JSON.parse(localStorage.getItem("registros")) || [];
+        const tbody = document.querySelector("#tabela tbody");
+        tbody.innerHTML = "";
+
+        lista.forEach((reg, index) => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${reg.nome}</td>
+                <td>${reg.ano}</td>
+                <td>${reg.dataFechamento}</td>
+                <td>
+                    <button onclick="editar(${index})">Editar</button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function editar(index) {
+        let lista = JSON.parse(localStorage.getItem("registros")) || [];
+        const reg = lista[index];
+
+        // Carrega os dados nos inputs
+        document.getElementById("nome").value = reg.nome;
+        document.getElementById("ano").value = reg.ano;
+        document.getElementById("dataFechamento").value = reg.dataFechamento;
+
+        indiceEdicao = index; // marca qual será editado
+
+        // Muda o texto do botão para indicar edição
+        document.querySelector("button").innerText = "Atualizar Registro";
+    }
+</script>
+
+</body>
+
+</html>
